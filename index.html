@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOKI XO — God of War</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700;900&family=IM+Fell+English:ital@0;1&display=swap');
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --blood:    #8b0000;
+  --blood2:   #c0392b;
+  --ember:    #e8630a;
+  --gold:     #c9a84c;
+  --gold2:    #f0c040;
+  --ash:      #1a1210;
+  --ash2:     #0e0b09;
+  --stone:    #2a1f1a;
+  --stone2:   #3d2b22;
+  --fog:      #8a7060;
+  --rune:     #d4a843;
+  --ice:      #a8cfd8;
+  --cream:    #e8dcc8;
+}
+
+html, body {
+  width:100%; min-height:100vh;
+  background: var(--ash2);
+  font-family: 'Cinzel', serif;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  overflow:hidden;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23c9a84c' d='M12 2L14 8L20 8L15 12L17 18L12 14L7 18L9 12L4 8L10 8Z'/%3E%3C/svg%3E") 12 12, crosshair;
+}
+
+/* ═══════════════════════════════════════════════
+   BACKGROUND — embers, fog, Norse geometry
+═══════════════════════════════════════════════ */
+#bg-canvas {
+  position:fixed; inset:0; z-index:0;
+  pointer-events:none;
+}
+
+body::before {
+  content:'';
+  position:fixed; inset:0; z-index:1;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(139,0,0,0.35) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 20% 80%, rgba(232,99,10,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 80% 90%, rgba(201,168,76,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, rgba(14,11,9,0.5) 0%, transparent 100%);
+  pointer-events:none;
+}
+
+/* Norse border pattern overlay */
+body::after {
+  content:'';
+  position:fixed; inset:0; z-index:2;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(201,168,76,0.025) 0px, transparent 1px, transparent 60px, rgba(201,168,76,0.025) 61px),
+    repeating-linear-gradient(90deg, rgba(201,168,76,0.025) 0px, transparent 1px, transparent 60px, rgba(201,168,76,0.025) 61px);
+  pointer-events:none;
+}
+
+/* ═══════════════════════════════════════════════
+   APP SHELL
+═══════════════════════════════════════════════ */
+#app {
+  position:relative; z-index:10;
+  display:flex; flex-direction:column;
+  align-items:center; gap:18px;
+  padding:20px 16px;
+  width:100%; max-width:560px;
+}
+
+/* ═══════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════ */
+.header {
+  text-align:center;
+  animation: riseFromAsh 1s ease both;
+  position:relative;
+}
+
+@keyframes riseFromAsh {
+  from { opacity:0; transform:translateY(40px) scale(0.92); filter:blur(8px); }
+  to   { opacity:1; transform:translateY(0) scale(1); filter:blur(0); }
+}
+
+/* Leviathan Axe SVG decorations */
+.axe-deco {
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  margin-bottom:4px;
+}
+.axe-deco svg { opacity:0.7; filter:drop-shadow(0 0 6px var(--gold)); }
+
+.header-top {
+  font-family:'Cinzel Decorative', serif;
+  font-size:0.55rem;
+  letter-spacing:10px;
+  color:var(--gold);
+  text-transform:uppercase;
+  opacity:0.6;
+  margin-bottom:2px;
+}
+
+.header-loki {
+  font-family:'Cinzel Decorative', serif;
+  font-size: clamp(3rem, 9vw, 5.5rem);
+  font-weight:900;
+  color:var(--cream);
+  line-height:0.9;
+  text-shadow:
+    0 0 30px rgba(139,0,0,0.8),
+    0 0 60px rgba(139,0,0,0.4),
+    3px 3px 0 rgba(0,0,0,0.8),
+    -1px -1px 0 rgba(201,168,76,0.3);
+  position:relative;
+  animation: bloodDrip 0.8s 0.3s ease both;
+}
+@keyframes bloodDrip {
+  from { clip-path: inset(0 0 100% 0); }
+  to   { clip-path: inset(0 0 0% 0); }
+}
+
+.header-xo {
+  font-family:'Cinzel Decorative', serif;
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight:900;
+  letter-spacing:8px;
+  line-height:1;
+  margin-top:2px;
+}
+.header-xo .x { color:var(--blood2); text-shadow:0 0 15px var(--blood), 0 0 40px rgba(139,0,0,0.5); }
+.header-xo .o { color:var(--gold); text-shadow:0 0 15px var(--gold2), 0 0 40px rgba(201,168,76,0.4); }
+.header-xo .sep { color:var(--fog); opacity:0.4; }
+
+.header-sub {
+  font-family:'IM Fell English', serif;
+  font-style:italic;
+  font-size:0.78rem;
+  color:var(--fog);
+  letter-spacing:3px;
+  margin-top:6px;
+  opacity:0.65;
+}
+
+/* Rune divider */
+.rune-divider {
+  display:flex; align-items:center; gap:10px;
+  width:100%;
+  margin:0;
+}
+.rune-divider::before, .rune-divider::after {
+  content:'';
+  flex:1; height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity:0.4;
+}
+.rune-divider span {
+  font-size:1rem; color:var(--gold); opacity:0.5;
+  filter:drop-shadow(0 0 4px var(--gold));
+}
+
+/* ═══════════════════════════════════════════════
+   MODE SELECTOR
+═══════════════════════════════════════════════ */
+.mode-bar {
+  display:flex; gap:8px;
+  animation: riseFromAsh 1s 0.1s ease both;
+}
+.mode-btn {
+  font-family:'Cinzel', serif;
+  font-size:0.6rem;
+  letter-spacing:2px;
+  padding:8px 18px;
+  border:1px solid rgba(201,168,76,0.25);
+  background:rgba(42,31,26,0.7);
+  color:rgba(201,168,76,0.45);
+  cursor:pointer;
+  transition:all 0.25s;
+  text-transform:uppercase;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+  position:relative; overflow:hidden;
+}
+.mode-btn::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(201,168,76,0.1), transparent);
+  opacity:0; transition:opacity 0.3s;
+}
+.mode-btn:hover::before { opacity:1; }
+.mode-btn.active {
+  background:rgba(139,0,0,0.5);
+  border-color:rgba(201,168,76,0.6);
+  color:var(--gold2);
+  box-shadow:0 0 20px rgba(139,0,0,0.4), inset 0 0 12px rgba(139,0,0,0.2);
+}
+.mode-btn:hover:not(.active) {
+  border-color:rgba(201,168,76,0.4);
+  color:rgba(201,168,76,0.7);
+  background:rgba(42,31,26,0.9);
+}
+
+/* ═══════════════════════════════════════════════
+   SCOREBOARD
+═══════════════════════════════════════════════ */
+.scoreboard {
+  display:flex; align-items:stretch; gap:0;
+  width:100%;
+  animation: riseFromAsh 1s 0.15s ease both;
+}
+
+.score-panel {
+  flex:1;
+  display:flex; flex-direction:column; align-items:center;
+  padding:12px 8px;
+  background: linear-gradient(135deg, rgba(42,31,26,0.9), rgba(14,11,9,0.95));
+  border:1px solid rgba(201,168,76,0.2);
+  position:relative; overflow:hidden;
+  transition:all 0.4s;
+}
+.score-panel::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(139,0,0,0.15), transparent 60%);
+  opacity:0; transition:opacity 0.4s;
+}
+.score-panel.active::before { opacity:1; }
+.score-panel.active {
+  border-color:rgba(201,168,76,0.55);
+  box-shadow:0 0 24px rgba(139,0,0,0.35), inset 0 0 20px rgba(139,0,0,0.08);
+}
+
+/* Corner rune marks on active panel */
+.score-panel.active::after {
+  content:'ᚱ';
+  position:absolute; top:4px; right:6px;
+  font-size:0.8rem; color:var(--gold); opacity:0.3;
+  animation:runeSpin 3s linear infinite;
+}
+@keyframes runeSpin { from{opacity:0.1} 50%{opacity:0.4} to{opacity:0.1} }
+
+.score-icon { font-size:1.6rem; margin-bottom:3px; filter:drop-shadow(0 0 6px rgba(139,0,0,0.6)); }
+.score-label {
+  font-family:'Cinzel', serif;
+  font-size:0.55rem;
+  letter-spacing:3px;
+  color:var(--fog);
+  text-transform:uppercase;
+  margin-bottom:2px;
+}
+.score-num {
+  font-family:'Cinzel Decorative', serif;
+  font-size:2.2rem;
+  font-weight:900;
+  line-height:1;
+  transition:transform 0.15s;
+}
+.panel-x .score-num { color:var(--blood2); text-shadow:0 0 12px var(--blood), 0 0 30px rgba(139,0,0,0.4); }
+.panel-o .score-num { color:var(--gold2); text-shadow:0 0 12px var(--gold), 0 0 30px rgba(201,168,76,0.4); }
+.panel-d .score-num { color:var(--fog); }
+.score-name {
+  font-family:'IM Fell English', serif;
+  font-style:italic;
+  font-size:0.65rem;
+  color:rgba(138,112,96,0.5);
+  margin-top:2px;
+  letter-spacing:1px;
+}
+
+.score-sep {
+  width:2px;
+  background:linear-gradient(180deg, transparent, rgba(201,168,76,0.3), transparent);
+}
+
+/* ═══════════════════════════════════════════════
+   TURN BAR
+═══════════════════════════════════════════════ */
+.turn-bar {
+  display:flex; align-items:center; gap:14px;
+  padding:9px 24px;
+  background:rgba(42,31,26,0.85);
+  border:1px solid rgba(201,168,76,0.2);
+  width:100%;
+  justify-content:center;
+  position:relative; overflow:hidden;
+  transition:all 0.4s;
+  animation: riseFromAsh 1s 0.2s ease both;
+}
+.turn-bar::before {
+  content:'';
+  position:absolute; top:0; left:-100%; width:40%; height:100%;
+  background:linear-gradient(90deg, transparent, rgba(201,168,76,0.08), transparent);
+  animation:sweep 3s ease-in-out infinite;
+}
+@keyframes sweep { 0%{left:-100%} 100%{left:200%} }
+
+.turn-bar.turn-x { border-color:rgba(139,0,0,0.5); box-shadow:0 0 16px rgba(139,0,0,0.2); }
+.turn-bar.turn-o { border-color:rgba(201,168,76,0.5); box-shadow:0 0 16px rgba(201,168,76,0.15); }
+
+.turn-rune {
+  font-size:1.2rem;
+  animation:runeGlow 1.5s ease-in-out infinite alternate;
+  filter:drop-shadow(0 0 4px var(--gold));
+}
+@keyframes runeGlow { from{opacity:0.5;transform:scale(0.9)} to{opacity:1;transform:scale(1.1)} }
+
+.turn-text {
+  font-family:'Cinzel', serif;
+  font-size:0.7rem;
+  letter-spacing:3px;
+  color:rgba(232,220,200,0.5);
+  text-transform:uppercase;
+}
+.turn-bar.turn-x .turn-text em { color:var(--blood2); font-style:normal; text-shadow:0 0 10px var(--blood); }
+.turn-bar.turn-o .turn-text em { color:var(--gold2); font-style:normal; text-shadow:0 0 10px var(--gold); }
+
+/* ═══════════════════════════════════════════════
+   BOARD
+═══════════════════════════════════════════════ */
+.board-outer {
+  position:relative;
+  animation: riseFromAsh 1s 0.25s ease both;
+  width:100%;
+}
+
+/* Stone frame / border decoration */
+.board-frame {
+  position:relative;
+  padding:14px;
+  background:
+    linear-gradient(135deg, rgba(61,43,34,0.6), rgba(14,11,9,0.9)),
+    repeating-linear-gradient(45deg, rgba(42,31,26,0.3) 0px, rgba(42,31,26,0.3) 1px, transparent 1px, transparent 8px);
+  border:2px solid rgba(201,168,76,0.3);
+  box-shadow:
+    0 0 40px rgba(139,0,0,0.25),
+    0 0 80px rgba(139,0,0,0.1),
+    inset 0 0 30px rgba(0,0,0,0.5);
+}
+
+/* Corner ornaments */
+.board-frame::before, .board-frame::after {
+  content:'';
+  position:absolute;
+  width:24px; height:24px;
+  border-color:var(--gold);
+  border-style:solid;
+  opacity:0.5;
+}
+.board-frame::before { top:-2px; left:-2px; border-width:3px 0 0 3px; }
+.board-frame::after  { bottom:-2px; right:-2px; border-width:0 3px 3px 0; }
+
+.corner-ornament {
+  position:absolute;
+  width:24px; height:24px;
+  border-color:var(--gold);
+  border-style:solid;
+  opacity:0.5;
+  z-index:2;
+}
+.corner-ornament.tr { top:-2px; right:-2px; border-width:3px 3px 0 0; }
+.corner-ornament.bl { bottom:-2px; left:-2px; border-width:0 0 3px 3px; }
+
+/* Center Vegvisir rune bg */
+.board-frame .vegvisir {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:none; z-index:0;
+  opacity:0.04;
+}
+
+#board {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:4px;
+  position:relative; z-index:2;
+}
+
+/* Grid lines — carved stone look */
+.cell {
+  aspect-ratio:1;
+  width:100%;
+  background:linear-gradient(135deg, rgba(26,18,14,0.97), rgba(14,11,9,0.99));
+  border:1px solid rgba(201,168,76,0.12);
+  display:flex; align-items:center; justify-content:center;
+  cursor:crosshair;
+  position:relative; overflow:hidden;
+  transition:border-color 0.3s, background 0.3s;
+  min-width:100px; min-height:100px;
+}
+
+/* Stone texture per cell */
+.cell::after {
+  content:'';
+  position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.015) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(0,0,0,0.2) 0%, transparent 50%);
+  pointer-events:none;
+}
+
+.cell:not(.taken):hover {
+  border-color:rgba(201,168,76,0.35);
+  background:linear-gradient(135deg, rgba(42,20,15,0.97), rgba(20,12,9,0.99));
+  box-shadow:inset 0 0 20px rgba(139,0,0,0.1);
+}
+
+.cell.taken { cursor:default; }
+
+.cell.win-x {
+  background:linear-gradient(135deg, rgba(100,0,0,0.3), rgba(14,11,9,0.9)) !important;
+  border-color:rgba(139,0,0,0.7) !important;
+  animation:stoneBloodPulse 1.8s ease infinite;
+}
+.cell.win-o {
+  background:linear-gradient(135deg, rgba(80,60,10,0.3), rgba(14,11,9,0.9)) !important;
+  border-color:rgba(201,168,76,0.7) !important;
+  animation:stoneGoldPulse 1.8s ease infinite;
+}
+@keyframes stoneBloodPulse { 0%,100%{box-shadow:inset 0 0 20px rgba(139,0,0,0.2)} 50%{box-shadow:inset 0 0 40px rgba(139,0,0,0.45)} }
+@keyframes stoneGoldPulse  { 0%,100%{box-shadow:inset 0 0 20px rgba(201,168,76,0.15)} 50%{box-shadow:inset 0 0 40px rgba(201,168,76,0.35)} }
+
+/* ═══════════════════════════════════════════════
+   SYMBOLS — Leviathan Axe & Blades of Chaos
+═══════════════════════════════════════════════ */
+.sym {
+  width:62%; height:62%;
+  position:relative; z-index:3;
+  animation:forgeStrike 0.4s cubic-bezier(0.22,1.2,0.6,1) both;
+}
+@keyframes forgeStrike {
+  from { transform:scale(0) rotate(25deg); opacity:0; filter:brightness(3); }
+  60%  { transform:scale(1.15) rotate(-5deg); filter:brightness(1.5); }
+  to   { transform:scale(1) rotate(0); opacity:1; filter:brightness(1); }
+}
+
+/* X = Blades of Chaos crossed */
+.sym-x line {
+  stroke:var(--blood2);
+  stroke-width:7;
+  stroke-linecap:round;
+  filter:drop-shadow(0 0 5px var(--blood)) drop-shadow(0 0 15px rgba(139,0,0,0.7));
+  stroke-dasharray:75;
+  stroke-dashoffset:75;
+  animation:slashDraw 0.28s ease forwards;
+}
+.sym-x line:nth-child(2) { animation-delay:0.12s; }
+
+/* O = Mjolnir ring */
+.sym-o circle {
+  stroke:var(--gold);
+  stroke-width:7;
+  fill:none;
+  stroke-linecap:round;
+  filter:drop-shadow(0 0 5px var(--gold2)) drop-shadow(0 0 14px rgba(201,168,76,0.6));
+  stroke-dasharray:188;
+  stroke-dashoffset:188;
+  animation:ringForge 0.45s ease forwards;
+}
+
+@keyframes slashDraw { to { stroke-dashoffset:0; } }
+@keyframes ringForge { to { stroke-dashoffset:0; } }
+
+/* O inner Norse knot detail */
+.sym-o .inner-dot {
+  fill:rgba(201,168,76,0.25);
+  filter:drop-shadow(0 0 6px var(--gold2));
+  animation:dotPop 0.3s 0.35s ease both;
+  transform-origin:center;
+  transform:scale(0);
+}
+@keyframes dotPop { to { transform:scale(1); } }
+
+/* ═══════════════════════════════════════════════
+   WIN LINE
+═══════════════════════════════════════════════ */
+#win-line-svg {
+  position:absolute; inset:14px;
+  pointer-events:none; z-index:20;
+}
+.win-stroke {
+  stroke:var(--gold2);
+  stroke-width:5;
+  stroke-linecap:round;
+  fill:none;
+  filter:drop-shadow(0 0 5px var(--gold2)) drop-shadow(0 0 18px rgba(201,168,76,0.7));
+  stroke-dasharray:800;
+  stroke-dashoffset:800;
+  animation:winBlaze 0.55s 0.1s ease forwards;
+}
+@keyframes winBlaze { to { stroke-dashoffset:0; } }
+
+/* ═══════════════════════════════════════════════
+   CONTROLS
+═══════════════════════════════════════════════ */
+.controls {
+  display:flex; gap:12px; width:100%;
+  animation: riseFromAsh 1s 0.3s ease both;
+}
+.ctrl-btn {
+  flex:1;
+  font-family:'Cinzel', serif;
+  font-size:0.62rem;
+  letter-spacing:2px;
+  padding:10px 12px;
+  background:rgba(42,31,26,0.8);
+  border:1px solid rgba(201,168,76,0.2);
+  color:rgba(201,168,76,0.5);
+  cursor:pointer;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+  transition:all 0.25s;
+  text-transform:uppercase;
+  position:relative; overflow:hidden;
+}
+.ctrl-btn::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(139,0,0,0.15), transparent);
+  opacity:0; transition:opacity 0.3s;
+}
+.ctrl-btn:hover::before { opacity:1; }
+.ctrl-btn:hover {
+  border-color:rgba(201,168,76,0.5);
+  color:var(--gold);
+  box-shadow:0 0 18px rgba(139,0,0,0.3);
+  transform:translateY(-2px);
+}
+
+/* ═══════════════════════════════════════════════
+   RESULT OVERLAY
+═══════════════════════════════════════════════ */
+#result-overlay {
+  display:none; position:fixed; inset:0; z-index:300;
+  background:rgba(14,11,9,0.82);
+  backdrop-filter:blur(8px);
+  align-items:center; justify-content:center;
+  animation:overlayIn 0.35s ease;
+}
+#result-overlay.show { display:flex; }
+@keyframes overlayIn { from{opacity:0} to{opacity:1} }
+
+.result-box {
+  position:relative;
+  background:linear-gradient(160deg, rgba(42,31,26,0.98), rgba(14,11,9,0.99));
+  border:1px solid rgba(201,168,76,0.4);
+  padding:40px 50px;
+  text-align:center;
+  clip-path:polygon(22px 0%,100% 0%,calc(100% - 22px) 100%,0% 100%);
+  box-shadow:
+    0 0 60px rgba(139,0,0,0.4),
+    0 0 120px rgba(139,0,0,0.15),
+    inset 0 0 40px rgba(0,0,0,0.5);
+  animation:boxForge 0.55s cubic-bezier(0.22,1.2,0.6,1) both;
+  overflow:hidden;
+  max-width:400px; width:90%;
+}
+@keyframes boxForge {
+  from { transform:scale(0.4) translateY(60px) rotate(-5deg); opacity:0; }
+  to   { transform:scale(1) translateY(0) rotate(0); opacity:1; }
+}
+
+/* blood drip top edge */
+.result-box::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:3px;
+  background:linear-gradient(90deg, transparent, var(--blood2), var(--gold), var(--blood2), transparent);
+  animation:edgePulse 2s ease infinite;
+}
+@keyframes edgePulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+/* sweep shimmer */
+.result-box::after {
+  content:''; position:absolute; top:0; left:-100%; width:60%; height:100%;
+  background:linear-gradient(90deg, transparent, rgba(201,168,76,0.05), transparent);
+  animation:resultSweep 2.5s ease infinite;
+}
+@keyframes resultSweep { to{left:200%} }
+
+.result-rune-row {
+  display:flex; justify-content:center; gap:12px; margin-bottom:10px;
+  font-size:1.5rem; opacity:0.5;
+  color:var(--gold);
+  filter:drop-shadow(0 0 4px var(--gold));
+  animation:runeFloat 3s ease-in-out infinite alternate;
+}
+@keyframes runeFloat { from{transform:translateY(0)} to{transform:translateY(-4px)} }
+
+.result-icon {
+  font-size:4rem;
+  display:block;
+  margin-bottom:8px;
+  animation:iconShock 0.6s cubic-bezier(0.22,1.5,0.6,1) both;
+  filter:drop-shadow(0 0 16px rgba(201,168,76,0.6));
+}
+@keyframes iconShock { from{transform:scale(0) rotate(-30deg)} to{transform:scale(1) rotate(0)} }
+
+.result-title {
+  font-family:'Cinzel Decorative', serif;
+  font-size:2.2rem;
+  font-weight:900;
+  letter-spacing:3px;
+  margin-bottom:6px;
+  animation:titleReveal 0.5s 0.2s ease both;
+}
+@keyframes titleReveal { from{clip-path:inset(0 100% 0 0)} to{clip-path:inset(0 0% 0 0)} }
+
+.result-title.win  { color:var(--gold2); text-shadow:0 0 20px var(--gold),0 0 50px rgba(201,168,76,0.4); }
+.result-title.draw { color:var(--fog); text-shadow:0 0 12px rgba(138,112,96,0.4); }
+
+.result-sub {
+  font-family:'IM Fell English', serif;
+  font-style:italic;
+  font-size:0.95rem;
+  letter-spacing:2px;
+  color:rgba(201,168,76,0.45);
+  margin-bottom:28px;
+}
+
+.result-quote {
+  font-family:'IM Fell English', serif;
+  font-style:italic;
+  font-size:0.75rem;
+  color:rgba(138,112,96,0.4);
+  border-top:1px solid rgba(201,168,76,0.12);
+  padding-top:14px;
+  margin-bottom:22px;
+  line-height:1.6;
+}
+
+.btn-group { display:flex; gap:12px; justify-content:center; }
+.btn {
+  font-family:'Cinzel', serif;
+  font-size:0.65rem;
+  letter-spacing:3px;
+  padding:12px 26px;
+  border:none;
+  cursor:pointer;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+  transition:all 0.2s;
+  text-transform:uppercase;
+  position:relative; overflow:hidden;
+}
+.btn::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(180deg, rgba(255,255,255,0.08), transparent);
+  pointer-events:none;
+}
+.btn-primary {
+  background:linear-gradient(135deg, var(--blood), #6b0000);
+  color:var(--cream);
+  box-shadow:0 0 24px rgba(139,0,0,0.5);
+}
+.btn-primary:hover { box-shadow:0 0 40px rgba(139,0,0,0.7); transform:translateY(-2px); }
+.btn-secondary {
+  background:rgba(42,31,26,0.9);
+  border:1px solid rgba(201,168,76,0.3);
+  color:rgba(201,168,76,0.6);
+}
+.btn-secondary:hover { border-color:rgba(201,168,76,0.6); color:var(--gold); transform:translateY(-2px); }
+
+/* ═══════════════════════════════════════════════
+   FX CANVAS
+═══════════════════════════════════════════════ */
+#fx-canvas {
+  position:fixed; inset:0; pointer-events:none; z-index:200;
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<canvas id="fx-canvas"></canvas>
+
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="axe-deco">
+      <!-- Leviathan Axe left -->
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 26 L20 8" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M20 8 C24 4 30 5 28 10 C26 15 20 14 20 8Z" fill="#c9a84c" opacity="0.8"/>
+        <path d="M8 26 C5 28 4 32 8 31 C11 30 11 27 8 26Z" fill="#8b0000" opacity="0.9"/>
+      </svg>
+      <div class="header-top">⚔ REALM OF NINE WORLDS ⚔</div>
+      <!-- Leviathan Axe right (mirrored) -->
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform:scaleX(-1)">
+        <path d="M8 26 L20 8" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M20 8 C24 4 30 5 28 10 C26 15 20 14 20 8Z" fill="#c9a84c" opacity="0.8"/>
+        <path d="M8 26 C5 28 4 32 8 31 C11 30 11 27 8 26Z" fill="#8b0000" opacity="0.9"/>
+      </svg>
+    </div>
+
+    <div class="header-loki">LOKI</div>
+    <div class="header-xo"><span class="x">X</span><span class="sep"> ✦ </span><span class="o">O</span></div>
+    <div class="header-sub">Boy · Ashes · Ragnarök</div>
+  </div>
+
+  <div class="rune-divider"><span>ᚨ ᚱ ᚷ ᚾ ᚹ ᛊ ᛏ ᛒ ᛖ ᛗ</span></div>
+
+  <!-- MODE -->
+  <div class="mode-bar">
+    <button class="mode-btn active" onclick="setMode('pvp')" id="mode-pvp">⚔ Warrior vs Warrior</button>
+    <button class="mode-btn" onclick="setMode('easy')" id="mode-easy">🐺 Fledgling Jötunn</button>
+    <button class="mode-btn" onclick="setMode('hard')" id="mode-hard">💀 God Slayer</button>
+  </div>
+
+  <!-- SCORE -->
+  <div class="scoreboard">
+    <div class="score-panel panel-x" id="panel-x">
+      <div class="score-icon">🪓</div>
+      <div class="score-label">Kratos</div>
+      <div class="score-num" id="score-x">0</div>
+      <div class="score-name">Ghost of Sparta</div>
+    </div>
+    <div class="score-sep"></div>
+    <div class="score-panel panel-d" id="panel-d">
+      <div class="score-icon">⚖</div>
+      <div class="score-label">Stalemate</div>
+      <div class="score-num" id="score-d">0</div>
+      <div class="score-name">Fate Undecided</div>
+    </div>
+    <div class="score-sep"></div>
+    <div class="score-panel panel-o" id="panel-o">
+      <div class="score-icon">⚡</div>
+      <div class="score-label">Atreus</div>
+      <div class="score-num" id="score-o">0</div>
+      <div class="score-name">Son of Loki</div>
+    </div>
+  </div>
+
+  <!-- TURN BAR -->
+  <div class="turn-bar turn-x" id="turn-bar">
+    <div class="turn-rune" id="turn-rune">ᚱ</div>
+    <div class="turn-text">
+      <em id="turn-name">Kratos</em> &nbsp;—&nbsp; <span id="turn-action">STRIKES FIRST</span>
+    </div>
+    <div class="turn-rune" id="turn-rune2">ᚱ</div>
+  </div>
+
+  <!-- BOARD -->
+  <div class="board-outer">
+    <div class="board-frame" id="board-frame">
+      <div class="corner-ornament tr"></div>
+      <div class="corner-ornament bl"></div>
+
+      <!-- Vegvisir watermark -->
+      <div class="vegvisir">
+        <svg width="260" height="260" viewBox="0 0 260 260" fill="none">
+          <!-- simplified vegvisir / compass rune -->
+          <circle cx="130" cy="130" r="120" stroke="#c9a84c" stroke-width="1" opacity="0.5"/>
+          <circle cx="130" cy="130" r="80"  stroke="#c9a84c" stroke-width="0.5" opacity="0.4"/>
+          <circle cx="130" cy="130" r="16"  stroke="#c9a84c" stroke-width="1.5" opacity="0.7"/>
+          <g stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round" opacity="0.6">
+            <line x1="130" y1="10"  x2="130" y2="50"/>
+            <line x1="130" y1="210" x2="130" y2="250"/>
+            <line x1="10"  y1="130" x2="50"  y2="130"/>
+            <line x1="210" y1="130" x2="250" y2="130"/>
+            <line x1="44"  y1="44"  x2="72"  y2="72"/>
+            <line x1="188" y1="188" x2="216" y2="216"/>
+            <line x1="44"  y1="216" x2="72"  y2="188"/>
+            <line x1="188" y1="72"  x2="216" y2="44"/>
+          </g>
+          <!-- rune arms -->
+          <g stroke="#c9a84c" stroke-width="1" opacity="0.35" stroke-linecap="round">
+            <path d="M130 50 L118 75 M130 50 L142 75"/>
+            <path d="M130 210 L118 185 M130 210 L142 185"/>
+            <path d="M50 130 L75 118 M50 130 L75 142"/>
+            <path d="M210 130 L185 118 M210 130 L185 142"/>
+            <path d="M72 72 L88 95 M72 72 L95 88"/>
+            <path d="M188 188 L172 165 M188 188 L165 172"/>
+            <path d="M72 188 L95 172 M72 188 L88 165"/>
+            <path d="M188 72 L165 88 M188 72 L172 95"/>
+          </g>
+        </svg>
+      </div>
+
+      <div id="board"></div>
+      <svg id="win-line-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <button class="ctrl-btn" onclick="resetBoard()">⟳ &nbsp;New Battle</button>
+    <button class="ctrl-btn" onclick="resetAll()">☠ &nbsp;Forget All</button>
+  </div>
+
+  <div class="rune-divider" style="opacity:0.4"><span>ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ</span></div>
+
+</div>
+
+<!-- RESULT OVERLAY -->
+<div id="result-overlay">
+  <div class="result-box">
+    <div class="result-rune-row" id="res-runes">ᚠ ᛟ ᚱ ᚷ</div>
+    <span class="result-icon" id="res-icon">⚔</span>
+    <div class="result-title win" id="res-title">VICTORY</div>
+    <div class="result-sub" id="res-sub">KRATOS TRIUMPHS</div>
+    <div class="result-quote" id="res-quote">"We must be better than this, boy."</div>
+    <div class="btn-group">
+      <button class="btn btn-primary" onclick="resetBoard()">⚔ &nbsp;Fight Again</button>
+      <button class="btn btn-secondary" onclick="resetAll()">☠ &nbsp;Reset Realm</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   BACKGROUND CANVAS — embers + floating runes
+══════════════════════════════════════════════════════ */
+const bgC = document.getElementById('bg-canvas');
+const bgX = bgC.getContext('2d');
+let embers = [], runes = [];
+const RUNE_CHARS = ['ᚠ','ᚢ','ᚦ','ᚨ','ᚱ','ᚲ','ᚷ','ᚹ','ᚺ','ᚾ','ᛁ','ᛃ','ᛇ','ᛈ','ᛉ','ᛊ','ᛏ','ᛒ','ᛖ','ᛗ','ᛚ','ᛜ','ᛞ','ᛟ'];
+
+function resizeBg() {
+  bgC.width = window.innerWidth;
+  bgC.height = window.innerHeight;
+  embers = Array.from({length:80}, () => spawnEmber(true));
+  runes  = Array.from({length:12}, () => spawnRune(true));
+}
+
+function spawnEmber(rand=false) {
+  return {
+    x: Math.random() * bgC.width,
+    y: rand ? Math.random() * bgC.height : bgC.height + 10,
+    r: 0.8 + Math.random() * 2.5,
+    vx: (Math.random()-0.5)*0.6,
+    vy: -(0.4 + Math.random()*1.5),
+    life: 0.4 + Math.random()*0.6,
+    decay: 0.003 + Math.random()*0.005,
+    color: Math.random()>0.5 ? '#e8630a' : Math.random()>0.5 ? '#c9a84c' : '#8b0000',
+  };
+}
+function spawnRune(rand=false) {
+  return {
+    char: RUNE_CHARS[Math.floor(Math.random()*RUNE_CHARS.length)],
+    x: Math.random() * bgC.width,
+    y: rand ? Math.random() * bgC.height : bgC.height + 40,
+    vy: -(0.15 + Math.random()*0.35),
+    vx: (Math.random()-0.5)*0.2,
+    life: 0.15 + Math.random()*0.2,
+    decay: 0.0008 + Math.random()*0.001,
+    size: 10 + Math.random()*16,
+  };
+}
+
+resizeBg(); window.addEventListener('resize', resizeBg);
+
+function animBg() {
+  bgX.clearRect(0,0,bgC.width,bgC.height);
+
+  // embers
+  embers.forEach((e,i) => {
+    e.x += e.vx; e.y += e.vy; e.life -= e.decay;
+    e.vx += (Math.random()-0.5)*0.05;
+    bgX.globalAlpha = Math.max(0,e.life);
+    bgX.shadowBlur = 8; bgX.shadowColor = e.color;
+    bgX.fillStyle = e.color;
+    bgX.beginPath(); bgX.arc(e.x,e.y,e.r,0,Math.PI*2); bgX.fill();
+    if (e.life <= 0 || e.y < -10) embers[i] = spawnEmber();
+  });
+
+  // runes
+  runes.forEach((r,i) => {
+    r.x += r.vx; r.y += r.vy; r.life -= r.decay;
+    bgX.globalAlpha = Math.max(0, r.life * 2.5);
+    bgX.shadowBlur = 6; bgX.shadowColor = '#c9a84c';
+    bgX.fillStyle = '#c9a84c';
+    bgX.font = `${r.size}px Cinzel`;
+    bgX.fillText(r.char, r.x, r.y);
+    if (r.life <= 0 || r.y < -40) runes[i] = spawnRune();
+  });
+
+  bgX.globalAlpha = 1; bgX.shadowBlur = 0;
+  requestAnimationFrame(animBg);
+}
+animBg();
+
+/* ══════════════════════════════════════════════════════
+   FX PARTICLE CANVAS
+══════════════════════════════════════════════════════ */
+const fxC = document.getElementById('fx-canvas');
+const fxX = fxC.getContext('2d');
+let particles = [];
+
+function resizeFx() { fxC.width = window.innerWidth; fxC.height = window.innerHeight; }
+resizeFx(); window.addEventListener('resize', resizeFx);
+
+function burst(x, y, colorA, colorB, count=20) {
+  for (let i=0; i<count; i++) {
+    const a = Math.random()*Math.PI*2;
+    const spd = 1.5 + Math.random()*6;
+    particles.push({
+      x, y,
+      vx: Math.cos(a)*spd, vy: Math.sin(a)*spd - 1.5,
+      life:1, decay:0.022+Math.random()*0.025,
+      r:2+Math.random()*5,
+      color: Math.random()>0.5 ? colorA : colorB,
+      ember: Math.random()>0.6,
+    });
+  }
+}
+
+function animFx() {
+  fxX.clearRect(0,0,fxC.width,fxC.height);
+  particles.forEach(p => {
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.12; p.life-=p.decay;
+    fxX.globalAlpha = Math.max(0,p.life);
+    fxX.shadowBlur = p.ember ? 14 : 4;
+    fxX.shadowColor = p.color;
+    fxX.fillStyle = p.color;
+    fxX.beginPath();
+    if (p.ember) {
+      fxX.arc(p.x, p.y, p.r*p.life, 0, Math.PI*2);
+    } else {
+      fxX.rect(p.x-p.r/2, p.y-p.r/2, p.r, p.r);
+    }
+    fxX.fill();
+  });
+  fxX.globalAlpha=1; fxX.shadowBlur=0;
+  particles = particles.filter(p=>p.life>0);
+  requestAnimationFrame(animFx);
+}
+animFx();
+
+/* ══════════════════════════════════════════════════════
+   GAME LOGIC
+══════════════════════════════════════════════════════ */
+let board = Array(9).fill(null);
+let current = 'X';
+let gameOver = false;
+let scores = {X:0,O:0,D:0};
+let mode = 'pvp';
+
+const WINS = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+const QUOTES_X_WIN  = ['"BOY!" — Kratos, probably.', '"We must be better than this."', '"The cycle ends here."', '"This is Sparta... I mean Midgard."'];
+const QUOTES_O_WIN  = ['"Hm. Not bad, Father."', '"The runes foretold this, Father."', '"Even gods can learn."', '"Is this not what you wanted?"'];
+const QUOTES_DRAW   = ['"The Norns weave an uncertain fate."', '"Neither glory nor defeat. Today."', '"The realms remain in balance."', '"Fate is not yet written."'];
+const QUOTES_AI_WIN = ['"You cannot best a god... of AI."', '"My algorithms hunger for victory."', '"Did you forget? I am inevitable."'];
+
+function rand(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+
+function setMode(m) {
+  mode = m;
+  ['pvp','easy','hard'].forEach(id => document.getElementById('mode-'+id).classList.toggle('active', id===m));
+  resetAll();
+}
+
+function checkWinner(b) {
+  for (const [a,bb,c] of WINS) {
+    if (b[a] && b[a]===b[bb] && b[a]===b[c]) return {winner:b[a], line:[a,bb,c]};
+  }
+  if (b.every(v=>v)) return {winner:'DRAW', line:[]};
+  return null;
+}
+
+// Minimax
+function minimax(b, isMax, depth=0, alpha=-Infinity, beta=Infinity) {
+  const res = checkWinner(b);
+  if (res) {
+    if (res.winner==='O') return 10-depth;
+    if (res.winner==='X') return depth-10;
+    return 0;
+  }
+  let best = isMax ? -Infinity : Infinity;
+  for (let i=0;i<9;i++) {
+    if (!b[i]) {
+      b[i] = isMax ? 'O' : 'X';
+      const s = minimax(b,!isMax,depth+1,alpha,beta);
+      b[i] = null;
+      if (isMax) { best=Math.max(best,s); alpha=Math.max(alpha,s); }
+      else       { best=Math.min(best,s); beta=Math.min(beta,s); }
+      if (beta<=alpha) break;
+    }
+  }
+  return best;
+}
+function bestMove(b) {
+  let best=-Infinity, move=-1;
+  for (let i=0;i<9;i++) {
+    if (!b[i]) {
+      b[i]='O'; const s=minimax(b,false); b[i]=null;
+      if (s>best){best=s;move=i;}
+    }
+  }
+  return move;
+}
+function easyMove(b) {
+  if (Math.random()>0.45) return bestMove(b);
+  const emp=b.map((v,i)=>v?-1:i).filter(v=>v>=0);
+  return emp[Math.floor(Math.random()*emp.length)];
+}
+
+/* ─── BOARD BUILD ─────────────────────────────── */
+function buildBoard() {
+  const el = document.getElementById('board');
+  el.innerHTML = '';
+  // calc viewBox from actual cell size after layout
+  for (let i=0;i<9;i++) {
+    const cell = document.createElement('div');
+    cell.className='cell'; cell.dataset.index=i;
+    cell.onclick = ()=>handleClick(i);
+    el.appendChild(cell);
+  }
+  // size win-line svg
+  setTimeout(()=>{
+    const frame = document.getElementById('board-frame');
+    const inner = document.getElementById('board');
+    const r = inner.getBoundingClientRect();
+    const fr = frame.getBoundingClientRect();
+    const off = r.left - fr.left;
+    const svg = document.getElementById('win-line-svg');
+    svg.setAttribute('viewBox',`0 0 ${inner.offsetWidth} ${inner.offsetHeight}`);
+    svg.style.left = off+'px';
+    svg.style.top  = (r.top - fr.top)+'px';
+    svg.style.width = inner.offsetWidth+'px';
+    svg.style.height= inner.offsetHeight+'px';
+  },50);
+}
+
+function renderBoard() {
+  board.forEach((val,i)=>{
+    const cell = document.querySelector(`.cell[data-index="${i}"]`);
+    if (!cell) return;
+    cell.innerHTML = '';
+    if (val) {
+      cell.classList.add('taken');
+      cell.appendChild(val==='X' ? makeX() : makeO());
+    }
+  });
+}
+
+function makeX() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 70 70');
+  svg.classList.add('sym','sym-x');
+  svg.innerHTML=`
+    <line class="sym-x-l" x1="12" y1="12" x2="58" y2="58"/>
+    <line class="sym-x-l" x1="58" y1="12" x2="12" y2="58"/>`;
+  svg.querySelectorAll('line').forEach(l=>{
+    l.setAttribute('stroke','#c0392b');
+    l.setAttribute('stroke-width','8');
+    l.setAttribute('stroke-linecap','round');
+    l.style.filter='drop-shadow(0 0 6px #8b0000) drop-shadow(0 0 16px rgba(139,0,0,0.7))';
+    l.style.strokeDasharray='70';
+    l.style.strokeDashoffset='70';
+    l.style.animation='slashDraw 0.28s ease forwards';
+  });
+  svg.querySelectorAll('line')[1].style.animationDelay='0.12s';
+  return svg;
+}
+
+function makeO() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 70 70');
+  svg.classList.add('sym','sym-o');
+  svg.innerHTML=`
+    <circle cx="35" cy="35" r="24" stroke="#c9a84c" stroke-width="7" fill="none"
+      stroke-linecap="round"
+      style="filter:drop-shadow(0 0 6px #f0c040) drop-shadow(0 0 16px rgba(201,168,76,0.7));
+             stroke-dasharray:151;stroke-dashoffset:151;animation:ringForge 0.45s ease forwards"/>
+    <circle cx="35" cy="35" r="5" class="inner-dot"
+      style="fill:rgba(201,168,76,0.3);filter:drop-shadow(0 0 6px #f0c040);
+             animation:dotPop 0.3s 0.35s ease both;transform-origin:35px 35px;transform:scale(0)"/>`;
+  return svg;
+}
+
+/* ─── CLICK ─────────────────────────────────── */
+function handleClick(i) {
+  if (gameOver || board[i]) return;
+  if (mode!=='pvp' && current==='O') return;
+  playMove(i);
+}
+
+function playMove(i) {
+  board[i]=current;
+  renderBoard();
+
+  const cell = document.querySelector(`.cell[data-index="${i}"]`);
+  const rect = cell.getBoundingClientRect();
+  const cx = rect.left+rect.width/2, cy = rect.top+rect.height/2;
+  if (current==='X') burst(cx,cy,'#c0392b','#e8630a',18);
+  else               burst(cx,cy,'#c9a84c','#f0c040',18);
+
+  const result = checkWinner(board);
+  if (result) { handleResult(result); return; }
+  current = current==='X'?'O':'X';
+  updateTurnBar();
+  if (mode!=='pvp' && current==='O' && !gameOver) setTimeout(aiMove,520);
+}
+
+function aiMove() {
+  if (gameOver) return;
+  const move = mode==='hard' ? bestMove(board) : easyMove(board);
+  if (move>=0) playMove(move);
+}
+
+/* ─── RESULT ────────────────────────────────── */
+function handleResult(result) {
+  gameOver=true;
+
+  if (result.winner==='DRAW') {
+    scores.D++;
+    document.getElementById('score-d').textContent=scores.D;
+    showResult('⚖','STALEMATE',rand(QUOTES_DRAW),'draw','Fate Undecided','ᚾ ᛟ ᚱ ᚾ');
+  } else {
+    scores[result.winner]++;
+    document.getElementById('score-'+result.winner.toLowerCase()).textContent=scores[result.winner];
+    highlightWin(result.line, result.winner);
+    drawWinLine(result.line);
+    result.line.forEach(idx=>{
+      const c=document.querySelector(`.cell[data-index="${idx}"]`);
+      const r=c.getBoundingClientRect();
+      burst(r.left+r.width/2, r.top+r.height/2,
+        result.winner==='X'?'#c0392b':'#c9a84c',
+        result.winner==='X'?'#e8630a':'#f0c040', 24);
+    });
+    const isAI = mode!=='pvp' && result.winner==='O';
+    const name  = result.winner==='X' ? 'Kratos' : (isAI?'The AI God':'Atreus');
+    const quote = result.winner==='X' ? rand(QUOTES_X_WIN) : isAI ? rand(QUOTES_AI_WIN) : rand(QUOTES_O_WIN);
+    showResult('⚔','VICTORY',quote,'win',`${name} claims the realm`,'ᚠ ᛟ ᚱ ᚷ');
+  }
+}
+
+function highlightWin(line, who) {
+  line.forEach(i=>{
+    const c=document.querySelector(`.cell[data-index="${i}"]`);
+    c.classList.add(who==='X'?'win-x':'win-o');
+  });
+}
+
+function drawWinLine(line) {
+  if (!line.length) return;
+  const svg = document.getElementById('win-line-svg');
+  svg.innerHTML='';
+  setTimeout(()=>{
+    const cells = document.querySelectorAll('.cell');
+    function center(idx) {
+      const cr = cells[idx].getBoundingClientRect();
+      const br = document.getElementById('board').getBoundingClientRect();
+      return { x:cr.left-br.left+cr.width/2, y:cr.top-br.top+cr.height/2 };
+    }
+    const a=center(line[0]), b=center(line[2]);
+    const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',`M ${a.x} ${a.y} L ${b.x} ${b.y}`);
+    path.setAttribute('class','win-stroke');
+    svg.appendChild(path);
+  },30);
+}
+
+/* ─── TURN BAR ──────────────────────────────── */
+const TURN_DATA = {
+  X: { name:'Kratos', action:'STRIKES', rune:'ᚱ', cls:'turn-x', panelCls:'active' },
+  O: { name:'Atreus', action:'DRAWS THE BOW', rune:'ᛏ', cls:'turn-o', panelCls:'active' },
+};
+
+function updateTurnBar() {
+  const d = TURN_DATA[current];
+  const bar = document.getElementById('turn-bar');
+  bar.className = 'turn-bar '+d.cls;
+  document.getElementById('turn-name').textContent = (mode!=='pvp'&&current==='O') ? 'The AI God' : d.name;
+  document.getElementById('turn-action').textContent = d.action;
+  document.getElementById('turn-rune').textContent  = d.rune;
+  document.getElementById('turn-rune2').textContent = d.rune;
+
+  document.getElementById('panel-x').classList.toggle('active', current==='X');
+  document.getElementById('panel-o').classList.toggle('active', current==='O');
+}
+
+/* ─── RESULT OVERLAY ────────────────────────── */
+function showResult(icon, title, quote, titleCls, sub, runes) {
+  document.getElementById('res-icon').textContent  = icon;
+  document.getElementById('res-title').textContent = title;
+  document.getElementById('res-title').className   = 'result-title '+titleCls;
+  document.getElementById('res-sub').textContent   = sub;
+  document.getElementById('res-quote').textContent = quote;
+  document.getElementById('res-runes').textContent = runes;
+  document.getElementById('result-overlay').classList.add('show');
+}
+function hideResult() { document.getElementById('result-overlay').classList.remove('show'); }
+
+/* ─── RESET ─────────────────────────────────── */
+function resetBoard() {
+  hideResult();
+  board=Array(9).fill(null); gameOver=false; current='X';
+  updateTurnBar(); buildBoard();
+  document.getElementById('win-line-svg').innerHTML='';
+  if (mode!=='pvp'&&current==='O') setTimeout(aiMove,600);
+}
+
+function resetAll() {
+  scores={X:0,O:0,D:0};
+  ['x','o','d'].forEach(k=>document.getElementById('score-'+k).textContent='0');
+  resetBoard();
+}
+
+/* ─── INIT ──────────────────────────────────── */
+buildBoard(); updateTurnBar();
+</script>
+</body>
+</html>
